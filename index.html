@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DreamTrip 여행사</title>
+  <style>
+    /* Reset & 기본 스타일 */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 50px;
+    }
+    header, section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 900px;
+      margin: 20px 0;
+      padding: 20px 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      color: #0077cc;
+      margin-bottom: 5px;
+    }
+    header p {
+      font-size: 1.2em;
+      margin-top: 0;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 70%;
+      max-width: 350px;
+      border: 1.5px solid #0077cc;
+      border-radius: 5px;
+      font-size: 1em;
+      margin-top: 10px;
+      outline-color: #005fa3;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus {
+      border-color: #005fa3;
+    }
+
+    /* 추천 여행지 버튼 스타일 */
+    #destinations div {
+      margin-top: 10px;
+    }
+    #destinations h3 {
+      margin-bottom: 8px;
+      color: #005fa3;
+    }
+    button.place-btn {
+      margin: 5px 7px 5px 0;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      background-color: #0077cc;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button.place-btn:hover {
+      background-color: #005fa3;
+    }
+    button.reserve-btn {
+      background-color: #ff6600;
+      margin-top: 15px;
+      padding: 10px 20px;
+    }
+    button.reserve-btn:hover {
+      background-color: #e65c00;
+    }
+
+    /* 여행지 정보 */
+    #placeInfo {
+      margin-top: 25px;
+      border-top: 2px solid #0077cc;
+      padding-top: 20px;
+    }
+    #placeInfo h3 {
+      margin-top: 0;
+      color: #004080;
+    }
+    #placeInfo img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    #placeInfo p {
+      font-size: 1.1em;
+      line-height: 1.4em;
+    }
+    #placeInfo ul {
+      padding-left: 20px;
+      margin-top: 5px;
+      list-style-type: disc;
+      color: #004080;
+    }
+
+    /* 예약 폼 */
+    #reservationForm {
+      display: none;
+      margin-top: 20px;
+      border-top: 2px solid #ff6600;
+      padding-top: 20px;
+    }
+    #reservationForm label {
+      display: block;
+      margin: 12px 0 5px;
+      font-weight: bold;
+    }
+    #reservationForm input, #reservationForm select {
+      width: 100%;
+      max-width: 350px;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    #reservationForm button {
+      margin-top: 15px;
+      background-color: #ff6600;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #reservationForm button:hover {
+      background-color: #e65c00;
+    }
+
+    /* 예약 완료 메시지 */
+    #reservationResult {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #dff0d8;
+      border: 1px solid #3c763d;
+      color: #3c763d;
+      font-weight: bold;
+      border-radius: 6px;
+      max-width: 500px;
+    }
+
+    /* 반응형 */
+    @media (max-width: 600px) {
+      input[type="text"] {
+        width: 100%;
+      }
+      #reservationForm input, #reservationForm select {
+        max-width: 100%;
+      }
+      header, section {
+        padding: 15px 20px;
+      }
+      button.place-btn {
+        width: 100%;
+        margin: 6px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to DreamTrip 여행사</h1>
+    <p>어디로 여행 가고 싶으신가요?</p>
+    <input type="text" id="searchInput" placeholder="여행지를 검색해보세요" />
+  </header>
+
+  <section id="about">
+    <h2>홈페이지 소개</h2>
+    <p>
+      안녕하세요! DreamTrip 여행사는 국내외 다양한 여행지를 소개하며, 여행 계획을 쉽고 즐겁게 도와드립니다.
+    </p>
+    <p>
+      아름다운 자연, 역사적인 유적, 도시의 활기까지! 여러분의 취향에 맞는 여행지를 추천해드립니다.
+    </p>
+    <p>
+      편리한 검색 기능과 예약 시스템으로 최고의 여행을 설계해보세요. 지금 바로 떠나볼까요?
+    </p>
+  </section>
+
+  <section id="destinations">
+    <h2>추천 여행지</h2>
+    <div>
+      <h3>국내</h3>
+      <button class="place-btn" onclick="showPlaceInfo('jeju')">제주도</button>
+      <button class="place-btn" onclick="showPlaceInfo('busan')">부산</button>
+      <button class="place-btn" onclick="showPlaceInfo('gangneung')">강릉</button>
+      <button class="place-btn" onclick="showPlaceInfo('seoul')">서울</button>
+    </div>
+    <div style="margin-top: 15px;">
+      <h3>해외</h3>
+      <button class="place-btn" onclick="showPlaceInfo('paris')">파리</button>
+      <button class="place-btn" onclick="showPlaceInfo('tokyo')">도쿄</button>
+      <button class="place-btn" onclick="showPlaceInfo('hawaii')">하와이</button>
+      <button class="place-btn" onclick="showPlaceInfo('bangkok')">방콕</button>
+    </div>
+
+    <div id="placeInfo"></div>
+
+    <!-- 예약 폼 -->
+    <section id="reservationForm">
+      <h3>예약하기</h3>
+      <form id="reserveForm" onsubmit="return submitReservation(event)">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="phone">연락처</label>
+        <input type="tel" id="phone" name="phone" pattern="[0-9\-+ ]+" required placeholder="010-1234-5678"/>
+
+        <label for="date">여행 날짜</label>
+        <input type="date" id="date" name="date" required min="" />
+
+        <label for="placeSelect">여행지</label>
+        <select id="placeSelect" name="placeSelect" required>
+          <option value="">선택하세요</option>
+          <option value="jeju">제주도</option>
+          <option value="busan">부산</option>
+          <option value="gangneung">강릉</option>
+          <option value="seoul">서울</option>
+          <option value="paris">파리</option>
+          <option value="tokyo">도쿄</option>
+          <option value="hawaii">하와이</option>
+          <option value="bangkok">방콕</option>
+        </select>
+
+        <button type="submit">예약 완료</button>
+      </form>
+      <div id="reservationResult"></div>
+    </section>
+  </section>
+
+  <script>
+    // 여행지 데이터
+    const info = {
+      jeju: {
+        title: "제주도",
+        desc: "제주도는 탐라국이라고 일컬을 정도로 육지와는 다른 생활, 문화양식이 가득합니다. 제주도의 집, 음식, 결혼풍습 등 다양한 전통을 알아가며 제주의 매력에 푹 빠져보세요 :)",
+        spots: ["성산일출봉", "한라산", "협재해수욕장"],
+        image: "https://images.unsplash.com/photo-1616798249081-30877e213b16",
+        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.283864126618!2d126.49213281563148!3d33.36168898075169!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x350cb59b6c1f67b7%3A0x37d6f512f951f984!2z7J6Q64uI7Iuk7Yqw7J6Q66y07IS47JqU!5e0!3m2!1sko!2skr!4v1684945472951!5m2!1sko!2skr"
+      },
+      busan: {
+        title: "부산",
+        desc: "부산은 세계적 메트로폴리스인 서울에 이어 대한민국 제2의 도시인 한반도 최남단 글로벌 해양도시입니다. 수많은 해변에는 젊음과 생동감이 넘쳐나고, 항구와 부두에는 엄청난 양의 컨테이너와 수출입 무역 상품들이 즐비하며, 거리와 공연장에는 문화와 예술의 향기가 가득합니다.",
+        spots: ["해운대", "광안리", "자갈치시장"],
+        image: "https://plus.unsplash.com/premium_photo-1661885684862-e94f628a3717",
+        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3263.0192823464277!2d129.0840669151305!3d35.15869893895152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3568ea5f3a3e3fb1%3A0x880470e2fa721c91!2z7J247ZqM7Iuc7Iqk7J6Q7Iqk7J6Q7KCV!5e0!3m2!1sko!2skr!4v1684945593791!5m2!1sko!2skr"
+      },
+      gangneung: {
+        title: "강릉",
+        desc: "동해안의 푸른 바다와 커피 거리로 유명한 도시",
+        spots: ["경포대", "안목해변", "오죽헌"],
+        image: "https://images.unsplash.com/photo-1720252741302-77213465eab2",
+        mapUrl: ""
+      },
+      seoul: {
+        title: "서울",
+        desc: "역사와 현대가 공존하는 대한민국의 수도",
+        spots: ["경복궁", "남산타워", "홍대"],
+        image: "https://images.unsplash.com/photo-1535189043414-47a3c49a0bed",
+        mapUrl: ""
+      },
+      paris: {
+        title: "파리",
+        desc: "고전 미술과 현대 미술 중 어느 쪽에 관심이 있습니까? 아마추어든 전문가든 취향에 관계없이 파리에 만족하실 것입니다. 루브르 박물관, 오르세 미술관, 오랑주리 미술관, 퐁피두센터, 케브랑리 박물관 등의 상설전시관과 기획전시회에 매료되실 것입니다!",
+        spots: ["에펠탑", "루브르 박물관", "노트르담 대성당"],
+        image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
+        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d41906.95142227912!2d2.252157367211802!3d48.858837845666115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fddf4dcb0d3%3A0x421aa1fa3e4a2d40!2z7ZWc7ZqM7JqwIOyXgeyImO2VmOq1rCDslZzsiqzroZwg67GcIOygnOyEnA!5e0!3m2!1sko!2skr!4v1684945794931!5m2!1sko!2skr"
+      },
+      tokyo: {
+        title: "도쿄",
+        desc: "전통과 첨단 기술이 공존하는 대도시",
+        spots: ["도쿄 타워", "아사쿠사", "하라주쿠"],
+        image: "https://plus.unsplash.com/premium_photo-1661902398022-762e88ff3f82",
+        mapUrl: ""
+      },
+      hawaii: {
+        title: "하와이",
+        desc: "휴양과 액티비티가 어우러진 섬",
+        spots: ["와이키키 해변", "하와이 화산 국립공원", "하나우마 베이"],
+        image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0",
+        mapUrl: ""
+      },
+      bangkok: {
+        title: "방콕",
+        desc: "열대의 분위기와 화려한 사원이 어우러진 도시",
+        spots: ["왓 아룬", "카오산 로드", "짜뚜짝 시장"],
+        image: "https://plus.unsplash.com/premium_photo-1661963188068-1bac46e28727",
+        mapUrl: ""
+      }
+    };
+
+    // 현재 선택 여행지 저장
+    let currentPlace = null;
+
+    // 페이지 요소
+    const placeInfoDiv = document.getElementById("placeInfo");
+    const reservationFormSection = document.getElementById("reservationForm");
+    const placeSelect = document.getElementById("placeSelect");
+    const reservationResultDiv = document.getElementById("reservationResult");
+    const searchInput = document.getElementById("searchInput");
+
+    // 오늘 날짜 세팅 (예약 날짜 최소값)
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById("date").setAttribute("min", todayStr);
+
+    // 여행지 정보 보여주기
+    function showPlaceInfo(place) {
+      if (!info[place]) return;
+
+      currentPlace = place;
+      const data = info[place];
+
+      let mapHtml = '';
+      if(data.mapUrl) {
+        mapHtml = `
+          <h4>지도</h4>
+          <iframe
+            src="${data.mapUrl}"
+            width="100%"
+            height="250"
+            style="border:0; border-radius:10px; margin-top: 10px;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+        `;
+      }
+
+      placeInfoDiv.innerHTML = `
+        <h3>${data.title}</h3>
+        <img src="${data.image}" alt="${data.title}" />
+        <p>${data.desc}</p>
+        <h4>주요 명소</h4>
+        <ul>
+          ${data.spots.map(spot => `<li>${spot}</li>`).join('')}
+        </ul>
+        ${mapHtml}
+        <button class="reserve-btn" onclick="openReservation('${place}')">예약하기</button>
+      `;
+
+      // 예약폼에 여행지 선택값도 변경
+      placeSelect.value = place;
+
+      // 예약 폼 숨기기 & 결과 초기화
+      reservationFormSection.style.display = "none";
+      reservationResultDiv.textContent = "";
+    }
+
+    // 예약 폼 열기
+    function openReservation(place) {
+      reservationFormSection.style.display = "block";
+      placeSelect.value = place;
+      reservationResultDiv.textContent = "";
+      window.scrollTo({top: reservationFormSection.offsetTop, behavior: "smooth"});
+    }
+
+    // 예약 제출
+    function submitReservation(event) {
+      event.preventDefault();
+      const form = event.target;
+      const name = form.name.value.trim();
+      const phone = form.phone.value.trim();
+      const date = form.date.value;
+      const place = form.placeSelect.value;
+
+      if (!name || !phone || !date || !place) {
+        alert("모든 필드를 정확히 입력해주세요.");
+        return false;
+      }
+
+      // 예약 저장 (임시로 localStorage에 저장)
+      let reservations = JSON.parse(localStorage.getItem("reservations") || "[]");
+      reservations.push({name, phone, date, place, time: new Date().toLocaleString()});
+      localStorage.setItem("reservations", JSON.stringify(reservations));
+
+      reservationResultDiv.textContent = `${name}님, ${info[place].title} 여행 예약이 완료되었습니다! 즐거운 여행 되세요.`;
+      form.reset();
+      reservationFormSection.style.display = "none";
+
+      return false;
+    }
+
+    // 검색 기능
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) {
+        placeInfoDiv.innerHTML = "";
+        reservationFormSection.style.display = "none";
+        reservationResultDiv.textContent = "";
+        return;
+      }
+
+      // 검색어 포함하는 여행지 찾기
+      const foundKey = Object.keys(info).find(key => info[key].title.toLowerCase().includes(query));
+      if (foundKey) {
+        showPlaceInfo(foundKey);
+      } else {
+        placeInfoDiv.innerHTML = `<p>검색 결과가 없습니다.</p>`;
+        reservationFormSection.style.display = "none";
+        reservationResultDiv.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>
