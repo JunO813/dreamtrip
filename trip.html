@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DreamTrip 여행사</title>
+<style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #333;
+    }
+    header {
+      background-color: rgba(255, 255, 255, 0.9);
+      text-align: center;
+      padding: 30px;
+    }
+    header input[type="text"] {
+      padding: 10px;
+      width: 60%;
+      max-width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    section {
+      background-color: rgba(255, 255, 255, 0.9);
+      margin: 30px auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 10px;
+    }
+    h1, h2, h3 {
+      color: #0077cc;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #0077cc;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .chat-bubble {
+      padding: 10px 14px;
+      border-radius: 15px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 14px;
+      margin: 5px;
+      white-space: pre-line;
+    }
+    .user-msg {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+    .gpt-msg {
+      background-color: #f1f0f0;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+    /* 추가된 스타일 */
+    .reservation-details label { /* reservation-form 에서 reservation-details로 변경 */
+        display: block;
+        margin-top: 10px;
+        color: #333;
+        font-weight: bold;
+    }
+    .reservation-details input[type="text"], /* reservation-form 에서 reservation-details로 변경 */
+    .reservation-details input[type="date"] { /* reservation-form 에서 reservation-details로 변경 */
+        width: calc(100% - 22px); /* padding 고려 */
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    .reservation-details button { /* reservation-form 에서 reservation-details로 변경 */
+        margin-top: 15px;
+    }
+
+</style>
+</head><body>
+<button id="toggle-btn" onclick="toggleChatbot()" style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+  ">💬 상담하기</button>
+<div id="chatbot-container" style="
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    flex-direction: column;
+    z-index: 9998;
+  ">
+<div style="background: #0077cc; color: white; padding: 12px; font-weight: bold; text-align: center;">
+    GPT 여행 챗봇
+    <span onclick="toggleChatbot()" style="float: right; cursor: pointer;">❌</span>
+</div>
+<div id="chat-history" style="padding: 10px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+<div style="display: flex; border-top: 1px solid #ccc;">
+<input id="chat-input" onkeydown="if(event.key === 'Enter'){ sendMessage(); }" placeholder="여행 질문을 입력하세요..." style="flex: 1; border: none; padding: 10px; font-size: 14px;" type="text"/>
+<button onclick="sendMessage()" style="background: #0077cc; color: white; border: none; padding: 10px;">전송</button>
+</div>
+</div>
+<header>
+<h1>Welcome to DreamTrip 여행사</h1>
+<p>어디로 여행 가고 싶으신가요?</p>
+<input id="searchInput" oninput="filterPlaces()" placeholder="여행지를 검색해보세요" type="text"/>
+</header>
+<section>
+<h2>홈페이지 소개</h2>
+<p>
+      DreamTrip은 당신의 여행을 보다 쉽고 즐겁게 만들어주는 여행사입니다.
+      국내외 다양한 명소 정보를 제공하며, 당신의 새로운 여행을 설계해드립니다.
+    </p>
+<p>
+      편리한 검색과 여행지별 특징, 추천 명소 안내는 물론 예약 기능까지!
+      DreamTrip과 함께 잊지 못할 추억을 만들어보세요.
+    </p>
+</section>
+<section>
+<h2>추천 여행지</h2>
+<div>
+<h3>국내</h3>
+<div id="domesticButtons">
+<button onclick="showPlaceInfo('jeju')">제주도</button>
+<button onclick="showPlaceInfo('busan')">부산</button>
+<button onclick="showPlaceInfo('gangneung')">강릉</button>
+<button onclick="showPlaceInfo('seoul')">서울</button>
+</div>
+</div>
+<div>
+<h3>해외</h3>
+<div id="overseasButtons">
+<button onclick="showPlaceInfo('paris')">파리</button>
+<button onclick="showPlaceInfo('tokyo')">도쿄</button>
+<button onclick="showPlaceInfo('hawaii')">하와이</button>
+<button onclick="showPlaceInfo('bangkok')">방콕</button>
+</div>
+</div>
+<div id="placeInfo" style="margin-top: 20px; display: none;"></div>
+</section>
+<script>
+    const info = {
+      jeju: {
+        title: "제주도",
+        desc: "전통과 자연이 공존하는 아름다운 섬",
+        spots: ["성산일출봉", "한라산", "협재해수욕장"],
+        image: "https://images.unsplash.com/photo-1616798249081-30877e213b16"
+      },
+      busan: {
+        title: "부산",
+        desc: "바다와 도시가 만나는 활기찬 항구 도시",
+        spots: ["해운대", "광안리", "자갈치시장"],
+        image: "https://plus.unsplash.com/premium_photo-1661885684862-e94f628a3717"
+      },
+      gangneung: {
+        title: "강릉",
+        desc: "동해안과 커피 거리로 유명한 도시",
+        spots: ["경포대", "안목해변", "오죽헌"],
+        image: "https://images.unsplash.com/photo-1720252741302-77213465eab2"
+      },
+      seoul: {
+        title: "서울",
+        desc: "역사와 현대가 공존하는 수도",
+        spots: ["경복궁", "남산타워", "홍대"],
+        image: "https://images.unsplash.com/photo-1535189043414-47a3c49a0bed"
+      },
+      paris: {
+        title: "파리",
+        desc: "예술과 낭만의 도시",
+        spots: ["에펠탑", "루브르 박물관", "노트르담 대성당"],
+        image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34"
+      },
+      tokyo: {
+        title: "도쿄",
+        desc: "전통과 미래가 어우러진 대도시",
+        spots: ["도쿄 타워", "아사쿠사", "하라주쿠"],
+        image: "https://plus.unsplash.com/premium_photo-1661902398022-762e88ff3f82"
+      },
+      hawaii: {
+        title: "하와이",
+        desc: "휴양과 자연이 어우러진 천국의 섬",
+        spots: ["와이키키", "화산 국립공원", "하나우마 베이"],
+        image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0"
+      },
+      bangkok: {
+        title: "방콕",
+        desc: "열대 분위기와 사원의 도시",
+        spots: ["왓 아룬", "카오산 로드", "짜뚜짝 시장"],
+        image: "https://plus.unsplash.com/premium_photo-1661963188068-1bac46e28727"
+      }
+    };
+
+    function showPlaceInfo(place) {
+      const data = info[place];
+      const container = document.getElementById("placeInfo");
+      if (data) {
+        container.style.display = "block";
+        container.innerHTML = `
+          <h3>${data.title}</h3>
+          <img src="${data.image}" alt="${data.title}" style="margin-bottom: 15px;" />
+          <p><strong>특징:</strong> ${data.desc}</p>
+          <p><strong>유명한 장소:</strong> ${data.spots.join(", ")}</p>
+          <button id="initial-reserve-btn-${place}" onclick="revealReservationForm('${place}')">예약하기</button>
+          
+          <div id="reservation-form-${place}" class="reservation-details" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top:15px;">
+            <h4>예약 정보 입력</h4>
+            <label for="name-${place}">이름:</label>
+            <input type="text" id="name-${place}" name="name" required>
+
+            <label for="duration-${place}">기간 (예: 3박 4일):</label>
+            <input type="text" id="duration-${place}" name="duration" required>
+
+            <label for="startDate-${place}">출발일:</label>
+            <input type="date" id="startDate-${place}" name="startDate" required>
+
+            <label for="endDate-${place}">도착일:</label>
+            <input type="date" id="endDate-${place}" name="endDate" required>
+
+            <label for="phone-${place}">번호:</label>
+            <input type="text" id="phone-${place}" name="phone" placeholder="010-1234-5678" required>
+            
+            <button onclick="submitReservation('${data.title}', '${place}')">최종 예약 확정</button>
+          </div>
+        `;
+      }
+       // 다른 장소 정보가 열려있었다면 해당 예약 폼도 숨김 처리
+        Object.keys(info).forEach(key => {
+            if (key !== place) {
+                const otherForm = document.getElementById(`reservation-form-${key}`);
+                if (otherForm) {
+                    otherForm.style.display = 'none';
+                }
+                const otherInitialBtn = document.getElementById(`initial-reserve-btn-${key}`);
+                if (otherInitialBtn) {
+                    otherInitialBtn.style.display = 'inline-block'; // 다른 곳의 초기 예약 버튼은 다시 보이도록
+                }
+            }
+        });
+    }
+
+    function revealReservationForm(placeId) {
+        const form = document.getElementById(`reservation-form-${placeId}`);
+        const initialBtn = document.getElementById(`initial-reserve-btn-${placeId}`);
+        if (form) {
+            form.style.display = "block";
+            // 입력 필드 초기화
+            document.getElementById(`name-${placeId}`).value = "";
+            document.getElementById(`duration-${placeId}`).value = "";
+            document.getElementById(`startDate-${placeId}`).value = "";
+            document.getElementById(`endDate-${placeId}`).value = "";
+            document.getElementById(`phone-${placeId}`).value = "";
+        }
+        if (initialBtn) {
+            initialBtn.style.display = "none"; // 초기 예약 버튼 숨기기
+        }
+    }
+
+    function submitReservation(placeName, placeId) {
+      const name = document.getElementById(`name-${placeId}`).value;
+      const duration = document.getElementById(`duration-${placeId}`).value;
+      const startDate = document.getElementById(`startDate-${placeId}`).value;
+      const endDate = document.getElementById(`endDate-${placeId}`).value;
+      const phone = document.getElementById(`phone-${placeId}`).value;
+
+      if (!name || !duration || !startDate || !endDate || !phone) {
+        alert("모든 정보를 입력해주세요.");
+        return;
+      }
+      const phonePattern = /^\d{3}-\d{3,4}-\d{4}$/;
+      if (!phonePattern.test(phone)) {
+          alert("올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)");
+          return;
+      }
+
+      alert(`${placeName} 예약이 완료되었습니다!\n\n[예약 정보]\n이름: ${name}\n기간: ${duration}\n출발일: ${startDate}\n도착일: ${endDate}\n번호: ${phone}`);
+      
+      document.getElementById("placeInfo").style.display = "none"; // 전체 정보창 숨기기
+      // 또는 특정 예약 폼만 숨기고 초기 버튼을 다시 보이게 할 수도 있습니다.
+      // const form = document.getElementById(`reservation-form-${placeId}`);
+      // if (form) form.style.display = "none";
+      // const initialBtn = document.getElementById(`initial-reserve-btn-${placeId}`);
+      // if (initialBtn) initialBtn.style.display = "inline-block";
+    }
+
+
+    function filterPlaces() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+
+      document.querySelectorAll("#domesticButtons button").forEach(btn => {
+        const match = btn.textContent.toLowerCase().includes(query);
+        btn.style.display = match ? "inline-block" : "none";
+      });
+      
+      document.querySelectorAll("#overseasButtons button").forEach(btn => {
+        const match = btn.textContent.toLowerCase().includes(query);
+        btn.style.display = match ? "inline-block" : "none";
+      });
+
+      const placeInfoDiv = document.getElementById("placeInfo");
+      if (placeInfoDiv.style.display !== "none") {
+          placeInfoDiv.style.display = "none"; // 검색 시 상세 정보창 닫기
+      }
+    }
+  
+    function toggleChatbot() {
+      const container = document.getElementById("chatbot-container");
+      const toggle = document.getElementById("toggle-btn");
+      if (container.style.display === "none") {
+        container.style.display = "flex";
+        toggle.innerText = "🔽 접기";
+      } else {
+        container.style.display = "none";
+        toggle.innerText = "💬 상담하기";
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("chat-input");
+      const history = document.getElementById("chat-history");
+      const message = input.value.trim();
+      if (!message) return;
+
+      const userBubble = document.createElement("div");
+      userBubble.className = "chat-bubble user-msg";
+      userBubble.innerText = "나: " + message;
+      history.appendChild(userBubble);
+
+      input.value = "";
+      history.scrollTop = history.scrollHeight;
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: message })
+        });
+
+        if (!res.ok) {
+            throw new Error(`Server responded with status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const gptBubble = document.createElement("div");
+        gptBubble.className = "chat-bubble gpt-msg";
+
+        let i = 0;
+        const text = "GPT: " + data.reply;
+        function typeWriter() {
+          if (i < text.length) {
+            gptBubble.innerText += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 20);
+          }
+        }
+        history.appendChild(gptBubble);
+        typeWriter();
+
+      } catch (e) {
+        console.error("Chatbot error:", e);
+        const errorBubble = document.createElement("div");
+        errorBubble.className = "chat-bubble gpt-msg";
+        errorBubble.innerText = "GPT: 응답 실패 😢 (서버 연결을 확인해주세요)";
+        history.appendChild(errorBubble);
+      }
+
+      history.scrollTop = history.scrollHeight;
+    }
+
+</script>
+</body>
+</html>
